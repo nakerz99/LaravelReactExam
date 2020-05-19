@@ -108,7 +108,7 @@ class App extends Component {
                   return (
                     <tr key={log.id}>
                       <td>{log.dateTimeLog}</td>
-                      <td>{log.log_type}</td>
+                      <td> <span className={`badge ${log.log_type == "start" ? 'badge-success' : 'badge-warning'}`}> {log.log_type}</span></td>
                       <td><button onClick={() => this.deleteLogs(log.id)} className="btn btn-danger btn-sm">Delete</button></td>
                     </tr>
                   );
