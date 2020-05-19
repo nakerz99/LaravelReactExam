@@ -18,6 +18,7 @@ class DateTimeLogs extends Migration
             $table->dateTime('dateTimeLog', 0);
             $table->enum('log_type', ['start', 'stop']);
             $table->timestamps();
+            $table->softDeletes('deleted_at', 0);	
         });
     }
 

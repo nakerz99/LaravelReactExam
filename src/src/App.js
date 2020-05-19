@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import './App.css';
 import { connect } from 'react-redux';
-import {addLogRequest, getDateTimeLogs} from './store/actions/TimeLogAction';
+import { deletetDateTimeLog, addLogRequest, getDateTimeLogs } from './store/actions/TimeLogAction';
 
 
- 
+
 
 class App extends Component {
 
@@ -13,58 +13,76 @@ class App extends Component {
     this.state = {
       timestamp: 0,
       button: "start",
-      status: false
+      status: false,
+      data: ""
     };
     this.AddLog = this.AddLog.bind(this)
+    this.deleteLogs = this.deleteLogs.bind(this)
 
   };
-  
 
-  componentWillMount() {
-    var today = new Date();
-    var timestamp = "";
-    let self = this;
-    setInterval(function () {
-      timestamp = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate() + ' ' + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
-      self.setState({ timestamp })
-      if (self.state.status) {
-        today.setSeconds(today.getSeconds() + 1);
-        console.log(self.state.status)
-      }
-    }, 1000);
+  componentDidMount() {
+    this.countData()
 
+    console.log('test')
     this.props.getDateTimeLogs().then(
       (resp) => {
-       console.log(resp)
+        let data = resp.data
+        this.setState({ data })
       });
   }
 
+  countData() {
+    let self = this;
+    var today = new Date();
+    let firstLog = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate() + ' ' + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    self.setState({ timestamp: firstLog })
+    var timestamp = ""
+    setInterval(function () {
+      if (self.state.status) {
+        console.log(self.state.status)
+        timestamp = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate() + ' ' + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
+        self.setState({ timestamp })
+        today.setSeconds(today.getSeconds() + 1);
+      }
+    }, 1000);
+  }
 
-  // incrementDate(data) {
-  //   var today = new Date();
-  //   var timestamp = "";
-  //   let self = this;
-  //   if (data) {
-  //     setInterval(function () {
-  //       timestamp = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate() + ' ' + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
-  //       console.log(timestamp)
-  //       self.setState({ timestamp })
-  //       today.setSeconds(today.getSeconds() + 1);
-  //     }, 1000);s
-  //   }
-  // }
+  deleteLogs = (rowId) => {
+    const arrayCopy = this.state.data.filter((row) => row.id !== rowId);
+    this.setState({ data: arrayCopy });
+    console.log(arrayCopy)
+    this.props.deletetDateTimeLog(rowId);
+
+
+  };
 
   AddLog() {
     if (this.state.button === "stop") {
-    this.setState({ button: "start", status: false })
+      this.setState({ button: "start", status: false })
     } else {
-    this.setState({ button: "stop", status: true })
+      this.setState({ button: "stop", status: true })
     }
+    let data = {
+      timestamp: this.state.timestamp,
+      log_type: this.state.button
+    }
+    this.props.addLogRequest(data)
+      .then((resp) => {
+        let data = resp.data
+        console.log(data.data)
+        console.log(this.state.data)
 
-    this.props.addLogRequest(this.state)
-    this.props.getDateTimeLogs()
 
-    
+        let tempState = [...this.state.data];
+        tempState.push(data.data)
+        this.setState({
+         data: tempState
+       })
+
+      });
+
+
   }
 
   render() {
@@ -74,6 +92,32 @@ class App extends Component {
         <button onClick={this.AddLog}>
           {this.state.button}
         </button>
+        <div>
+          <h1 id='title'>Date Time Logs</h1>
+          <center>
+            <table id='students'>
+              <thead>
+                <tr>
+                  <th>Time Log</th>
+                  <th>Log Type</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.data ? this.state.data.map((log, key) => {
+                  return (
+                    <tr key={log.id}>
+                      <td>{log.dateTimeLog}</td>
+                      <td>{log.log_type}</td>
+                      <td><button onClick={() => this.deleteLogs(log.id)}>Delete</button></td>
+                    </tr>
+                  );
+                }) : null
+                }
+              </tbody>
+            </table>
+          </center>
+        </div>
       </div>
     );
   }
@@ -82,10 +126,12 @@ class App extends Component {
 
 
 
-const mapDisPatchToProps = (dispatch) =>{
+const mapDisPatchToProps = (dispatch) => {
   return {
-    addLogRequest:(creds) =>dispatch(addLogRequest(creds)),
-    getDateTimeLogs:(creds) =>dispatch(getDateTimeLogs(creds)),
+    addLogRequest: (creds) => dispatch(addLogRequest(creds)),
+    getDateTimeLogs: (creds) => dispatch(getDateTimeLogs(creds)),
+    deletetDateTimeLog: (creds) => dispatch(deletetDateTimeLog(creds)),
+
   }
 }
 
@@ -96,6 +142,6 @@ const mapDisPatchToProps = (dispatch) =>{
 // }
 
 
-export default connect(null,mapDisPatchToProps)(App)
+export default connect(null, mapDisPatchToProps)(App)
 
 
