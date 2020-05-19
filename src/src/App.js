@@ -3,9 +3,6 @@ import './App.css';
 import { connect } from 'react-redux';
 import { deletetDateTimeLog, addLogRequest, getDateTimeLogs } from './store/actions/TimeLogAction';
 
-
-
-
 class App extends Component {
 
   constructor(props) {
@@ -73,12 +70,11 @@ class App extends Component {
         console.log(data.data)
         console.log(this.state.data)
 
-
         let tempState = [...this.state.data];
         tempState.push(data.data)
         this.setState({
-         data: tempState
-       })
+          data: tempState
+        })
 
       });
 
@@ -87,15 +83,19 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
-        <div>{this.state.timestamp}</div>
-        <button onClick={this.AddLog}>
-          {this.state.button}
-        </button>
+      <div className="container">
+        <div className="jumbotron">
+          <h1 className="display-4 d-flex justify-content-center">{this.state.timestamp}</h1>
+          <div className="form-group">
+            <button className="btn btn-primary btn-block" onClick={this.AddLog}>
+              {this.state.button}
+            </button>
+          </div>
+        </div>
         <div>
           <h1 id='title'>Date Time Logs</h1>
           <center>
-            <table id='students'>
+            <table id='students' className="table">
               <thead>
                 <tr>
                   <th>Time Log</th>
@@ -109,7 +109,7 @@ class App extends Component {
                     <tr key={log.id}>
                       <td>{log.dateTimeLog}</td>
                       <td>{log.log_type}</td>
-                      <td><button onClick={() => this.deleteLogs(log.id)}>Delete</button></td>
+                      <td><button onClick={() => this.deleteLogs(log.id)} className="btn btn-danger btn-sm">Delete</button></td>
                     </tr>
                   );
                 }) : null
@@ -134,13 +134,6 @@ const mapDisPatchToProps = (dispatch) => {
 
   }
 }
-
-
-
-// SignupForm.propTypes = {
-//   userSignupRequest: React.PropTypes.func.isRequired,
-// }
-
 
 export default connect(null, mapDisPatchToProps)(App)
 
